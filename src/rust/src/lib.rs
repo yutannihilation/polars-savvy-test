@@ -1,0 +1,83 @@
+// Example functions
+
+use savvy::savvy;
+
+use savvy::{IntegerSexp, OwnedIntegerSexp, OwnedStringSexp, StringSexp};
+
+use savvy::NotAvailableValue;
+
+/// Convert Input To Upper-Case
+///
+/// @param x A character vector.
+/// @returns A character vector with upper case version of the input.
+/// @export
+#[savvy]
+fn to_upper(x: StringSexp) -> savvy::Result<savvy::Sexp> {
+    let mut out = OwnedStringSexp::new(x.len())?;
+
+    for (i, e) in x.iter().enumerate() {
+        if e.is_na() {
+            out.set_elt(i, <&str>::na())?;
+            continue;
+        }
+
+        let e_upper = e.to_uppercase();
+        out.set_elt(i, &e_upper)?;
+    }
+
+    Ok(out.into())
+}
+
+/// Multiply Input By Another Input
+///
+/// @param x An integer vector.
+/// @param y An integer to multiply.
+/// @returns An integer vector with values multiplied by `y`.
+/// @export
+#[savvy]
+fn int_times_int(x: IntegerSexp, y: i32) -> savvy::Result<savvy::Sexp> {
+    let mut out = OwnedIntegerSexp::new(x.len())?;
+
+    for (i, e) in x.iter().enumerate() {
+        if e.is_na() {
+            out[i] = i32::na();
+        } else {
+            out[i] = e * y;
+        }
+    }
+
+    Ok(out.into())
+}
+
+struct Person {
+    pub name: String,
+}
+
+/// A person with a name
+///
+/// @export
+#[savvy]
+impl Person {
+    fn new() -> Self {
+        Self {
+            name: "".to_string(),
+        }
+    }
+
+    fn set_name(&mut self, name: &str) -> savvy::Result<()> {
+        self.name = name.to_string();
+        Ok(())
+    }
+
+    fn name(&self) -> savvy::Result<savvy::Sexp> {
+        let mut out = OwnedStringSexp::new(1)?;
+        out.set_elt(0, &self.name)?;
+        Ok(out.into())
+    }
+
+    fn associated_function() -> savvy::Result<savvy::Sexp> {
+        let mut out = OwnedStringSexp::new(1)?;
+        out.set_elt(0, "associated_function")?;
+        Ok(out.into())
+    }
+}
