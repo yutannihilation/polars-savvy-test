@@ -1,83 +1,77 @@
-// Example functions
+use polars::prelude::*;
+use polars_arrow::bitmap::Bitmap;
 
-use savvy::savvy;
+use savvy::{r_println, savvy, ListSexp, LogicalSexp, RealSexp, StringSexp};
+use savvy::{IntegerSexp, NotAvailableValue};
 
-use savvy::{IntegerSexp, OwnedIntegerSexp, OwnedStringSexp, StringSexp};
+struct P01DataFrame(DataFrame);
 
-use savvy::NotAvailableValue;
-
-/// Convert Input To Upper-Case
-///
-/// @param x A character vector.
-/// @returns A character vector with upper case version of the input.
-/// @export
 #[savvy]
-fn to_upper(x: StringSexp) -> savvy::Result<savvy::Sexp> {
-    let mut out = OwnedStringSexp::new(x.len())?;
+impl P01DataFrame {
+    fn new(x: ListSexp) -> Self {
+        let serieses: Vec<Series> = x
+            .iter()
+            .flat_map(|(k, v)| match v.into_typed() {
+                savvy::TypedSexp::Integer(i) => Some(new_from_integer(k, i)),
+                savvy::TypedSexp::Real(r) => Some(new_from_real(k, r)),
+                savvy::TypedSexp::String(s) => Some(new_from_string(k, s)),
+                savvy::TypedSexp::Logical(l) => Some(new_from_logical(k, l)),
+                // TODO
+                // savvy::TypedSexp::List(_) => todo!(),
+                // TODO
+                _ => None,
+            })
+            .collect();
 
-    for (i, e) in x.iter().enumerate() {
-        if e.is_na() {
-            out.set_elt(i, <&str>::na())?;
-            continue;
-        }
+        // TODO: support the return type savvy::Result<Self>
+        // let df = DataFrame::new(serieses).map_err(|e| savvy::Error::new(&e.to_string()))?;
 
-        let e_upper = e.to_uppercase();
-        out.set_elt(i, &e_upper)?;
+        let df = DataFrame::new(serieses).unwrap();
+
+        Self(df)
     }
 
-    Ok(out.into())
-}
-
-/// Multiply Input By Another Input
-///
-/// @param x An integer vector.
-/// @param y An integer to multiply.
-/// @returns An integer vector with values multiplied by `y`.
-/// @export
-#[savvy]
-fn int_times_int(x: IntegerSexp, y: i32) -> savvy::Result<savvy::Sexp> {
-    let mut out = OwnedIntegerSexp::new(x.len())?;
-
-    for (i, e) in x.iter().enumerate() {
-        if e.is_na() {
-            out[i] = i32::na();
-        } else {
-            out[i] = e * y;
-        }
-    }
-
-    Ok(out.into())
-}
-
-struct Person {
-    pub name: String,
-}
-
-/// A person with a name
-///
-/// @export
-#[savvy]
-impl Person {
-    fn new() -> Self {
-        Self {
-            name: "".to_string(),
-        }
-    }
-
-    fn set_name(&mut self, name: &str) -> savvy::Result<()> {
-        self.name = name.to_string();
+    fn print(&self) -> savvy::Result<()> {
+        r_println!("{:?}", self.0);
         Ok(())
     }
+}
 
-    fn name(&self) -> savvy::Result<savvy::Sexp> {
-        let mut out = OwnedStringSexp::new(1)?;
-        out.set_elt(0, &self.name)?;
-        Ok(out.into())
-    }
+fn new_from_integer(name: &str, values: IntegerSexp) -> Series {
+    let values_vec = values.to_vec();
+    let validity = Bitmap::from_trusted_len_iter(values_vec.iter().map(|x| !x.is_na()));
 
-    fn associated_function() -> savvy::Result<savvy::Sexp> {
-        let mut out = OwnedStringSexp::new(1)?;
-        out.set_elt(0, "associated_function")?;
-        Ok(out.into())
-    }
+    Int32Chunked::from_vec_validity(name, values_vec, Some(validity)).into_series()
+}
+
+fn new_from_real(name: &str, values: RealSexp) -> Series {
+    let values_vec = values.to_vec();
+    let validity = Bitmap::from_trusted_len_iter(values_vec.iter().map(|x| !x.is_na()));
+
+    Float64Chunked::from_vec_validity(name, values_vec, Some(validity)).into_series()
+}
+
+// StringChunked's from_vec_validity() requires numeric vector for some reason,
+// so this is implemented differently
+fn new_from_string(name: &str, values: StringSexp) -> Series {
+    StringChunked::from_iter_options(
+        name,
+        values
+            .iter()
+            .map(|s| if s.is_na() { None } else { Some(s) }),
+    )
+    .into_series()
+}
+
+// BooleanChunked's from_vec_validity() requires numeric vector for some reason,
+// so this is implemented differently
+fn new_from_logical(name: &str, values: LogicalSexp) -> Series {
+    BooleanChunked::from_iter_options(
+        name,
+        values
+            .as_slice_raw()
+            .iter()
+            .map(|s| if s.is_na() { None } else { Some(*s == 1) }),
+    )
+    .into_series()
 }

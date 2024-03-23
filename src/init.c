@@ -32,44 +32,22 @@ SEXP handle_result(SEXP res_) {
     return (SEXP)res;
 }
 
-SEXP to_upper__impl(SEXP x) {
-    SEXP res = to_upper(x);
+
+SEXP P01DataFrame_new__impl(SEXP x) {
+    SEXP res = P01DataFrame_new(x);
     return handle_result(res);
 }
 
-SEXP int_times_int__impl(SEXP x, SEXP y) {
-    SEXP res = int_times_int(x, y);
-    return handle_result(res);
-}
-
-SEXP Person_new__impl(void) {
-    SEXP res = Person_new();
-    return handle_result(res);
-}
-
-SEXP Person_set_name__impl(SEXP self__, SEXP name) {
-    SEXP res = Person_set_name(self__, name);
-    return handle_result(res);
-}
-
-SEXP Person_name__impl(SEXP self__) {
-    SEXP res = Person_name(self__);
-    return handle_result(res);
-}
-
-SEXP Person_associated_function__impl(void) {
-    SEXP res = Person_associated_function();
+SEXP P01DataFrame_print__impl(SEXP self__) {
+    SEXP res = P01DataFrame_print(self__);
     return handle_result(res);
 }
 
 
 static const R_CallMethodDef CallEntries[] = {
-    {"to_upper__impl", (DL_FUNC) &to_upper__impl, 1},
-    {"int_times_int__impl", (DL_FUNC) &int_times_int__impl, 2},
-    {"Person_new__impl", (DL_FUNC) &Person_new__impl, 0},
-    {"Person_set_name__impl", (DL_FUNC) &Person_set_name__impl, 2},
-    {"Person_name__impl", (DL_FUNC) &Person_name__impl, 1},
-    {"Person_associated_function__impl", (DL_FUNC) &Person_associated_function__impl, 0},
+
+    {"P01DataFrame_new__impl", (DL_FUNC) &P01DataFrame_new__impl, 1},
+    {"P01DataFrame_print__impl", (DL_FUNC) &P01DataFrame_print__impl, 1},
     {NULL, NULL, 0}
 };
 

@@ -7,4 +7,7 @@ edition = "2021"
 crate-type = ["staticlib"]
 
 [dependencies]
-savvy = "*"
+polars = "0.38.3"
+polars-arrow = "*" # for BitMap
+
+savvy = { git = "https://github.com/yutannihilation/savvy" }

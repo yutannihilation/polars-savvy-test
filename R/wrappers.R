@@ -2,56 +2,22 @@
 #' @keywords internal
 NULL
 
-#' Convert Input To Upper-Case
-#'
-#' @param x A character vector.
-#' @returns A character vector with upper case version of the input.
-#' @export
-to_upper <- function(x) {
-  .Call(to_upper__impl, x)
-}
 
-#' Multiply Input By Another Input
-#'
-#' @param x An integer vector.
-#' @param y An integer to multiply.
-#' @returns An integer vector with values multiplied by `y`.
-#' @export
-int_times_int <- function(x, y) {
-  .Call(int_times_int__impl, x, y)
-}
 
-#' A person with a name
-#'
-#' @export
-Person <- function() {
+P01DataFrame <- function(x) {
   e <- new.env(parent = emptyenv())
-  self <- .Call(Person_new__impl)
+  self <- .Call(P01DataFrame_new__impl, x)
 
-  e$set_name <- Person_set_name(self)
-  e$name <- Person_name(self)
-  e$associated_function <- Person_associated_function(self)
+  e$print <- P01DataFrame_print(self)
 
-  class(e) <- "Person"
+  class(e) <- "P01DataFrame"
   e
 }
 
 
-Person_set_name <- function(self) {
-  function(name) {
-    invisible(.Call(Person_set_name__impl, self, name))
-  }
-}
-
-Person_name <- function(self) {
+P01DataFrame_print <- function(self) {
   function() {
-    .Call(Person_name__impl, self)
-  }
-}
-
-Person_associated_function <- function(self) {
-  function() {
-    .Call(Person_associated_function__impl)
+    invisible(.Call(P01DataFrame_print__impl, self))
   }
 }
 

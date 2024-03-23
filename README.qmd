@@ -1,0 +1,19 @@
+---
+title: "⚠️This is not for use⚠️"
+format: gfm
+editor: visual
+---
+
+```{r}
+library(p01ars)
+
+df <- p01ars_dataframe(
+  A = 1:5,
+  fruits = c("banana", "banana", "apple", "apple", "banana"),
+  B = 5:1,
+  cars = c("beetle", "audi", "beetle", "beetle", "beetle")
+)
+
+df
+```
+
