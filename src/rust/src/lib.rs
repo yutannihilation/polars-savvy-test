@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use polars::prelude::*;
 use polars_arrow::bitmap::Bitmap;
 
@@ -23,18 +25,19 @@ impl P01DataFrame {
             })
             .collect();
 
-        // TODO: support the return type savvy::Result<Self>
         // let df = DataFrame::new(serieses).map_err(|e| savvy::Error::new(&e.to_string()))?;
-
-        let df = DataFrame::new(serieses).unwrap();
-
-        Self(df)
+        // Ok(P01DataFrame(df).into_external_pointer())
+        Self(DataFrame::new(serieses).unwrap())
     }
 
     fn print(&self) -> savvy::Result<()> {
         r_println!("{:?}", self.0);
         Ok(())
     }
+
+    // fn group_by(&mut self, by: StringSexp) -> savvy::Result<GroupBy> {
+    //     self.0.group_by(by.iter())
+    // }
 }
 
 fn new_from_integer(name: &str, values: IntegerSexp) -> Series {

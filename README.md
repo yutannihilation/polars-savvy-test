@@ -4,7 +4,7 @@
 ``` r
 library(p01ars)
 
-df <- p01ars_dataframe(
+df <- pl$DataFrame(
   A = 1:5,
   fruits = c("banana", "banana", "apple", "apple", "banana"),
   B = 5:1,

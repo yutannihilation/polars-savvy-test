@@ -1,5 +1,7 @@
 #' @export
-p01ars_dataframe <- function(...) {
+pl <- new.env(parent = emptyenv())
+
+pl$DataFrame <- function(...) {
   P01DataFrame(list(...))
 }
 
